@@ -1,0 +1,268 @@
+@import 'tailwindcss';
+@import '@xyflow/react/dist/style.css';
+
+/*
+  ══════════════════════════════════════════════════════════════
+   고대 마법서 · Grimoire design tokens
+  ══════════════════════════════════════════════════════════════
+*/
+@theme {
+  /* Parchment / ink */
+  --color-parchment: #e9dcbe;
+  --color-parchment-deep: #d8c69c;
+  --color-ink: #3a2c19;
+  --color-ink-soft: #6b563a;
+
+  /* Grimoire dark surfaces */
+  --color-grim-900: #140f0a;
+  --color-grim-800: #1d160e;
+  --color-grim-700: #2a2013;
+  --color-grim-600: #362a19;
+  --color-grim-500: #4a3a22;
+
+  /* Arcane gold */
+  --color-gold-100: #f6e7bf;
+  --color-gold-300: #e3c780;
+  --color-gold-400: #d4af47;
+  --color-gold-500: #c19a35;
+  --color-gold-600: #9a7726;
+
+  /* States */
+  --color-ember: #d98a3c;
+  --color-lotus: #f4c95d;
+  --color-sealed: #5c5344;
+
+  --font-display: 'Cinzel', 'Nanum Myeongjo', serif;
+  --font-serif: 'Gowun Batang', 'Nanum Myeongjo', serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-serif);
+  background:
+    radial-gradient(1200px 800px at 15% -10%, #241a10 0%, transparent 55%),
+    radial-gradient(1000px 700px at 100% 110%, #22180d 0%, transparent 50%),
+    #100b06;
+  color: var(--color-parchment);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Parchment paper texture (procedural, no external asset) */
+.parchment {
+  background-color: #e9dcbe;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(120, 92, 48, 0.12) 0%, transparent 8%),
+    radial-gradient(circle at 80% 70%, rgba(120, 92, 48, 0.1) 0%, transparent 9%),
+    radial-gradient(circle at 55% 40%, rgba(150, 110, 60, 0.08) 0%, transparent 12%),
+    linear-gradient(135deg, #ecdfc2 0%, #e2d2ad 100%);
+  box-shadow:
+    inset 0 0 120px rgba(90, 64, 30, 0.35),
+    inset 0 0 30px rgba(60, 40, 18, 0.25);
+}
+
+/* Fine engraved rule lines */
+.rune-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-gold-500) 20%,
+    var(--color-gold-300) 50%,
+    var(--color-gold-500) 80%,
+    transparent
+  );
+  opacity: 0.55;
+}
+
+/* ── scrollbars ─────────────────────────────── */
+.thin-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--color-gold-600), var(--color-grim-600));
+  border-radius: 8px;
+}
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/*
+  ══════════════════════════════════════════════════════════════
+   Animations
+  ══════════════════════════════════════════════════════════════
+*/
+
+/* glowing orb pulse on available nodes */
+@keyframes orb-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 8px 1px rgba(244, 201, 93, 0.6),
+      0 0 20px 4px rgba(217, 138, 60, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 14px 3px rgba(244, 201, 93, 0.9),
+      0 0 34px 8px rgba(217, 138, 60, 0.55);
+    transform: scale(1.08);
+  }
+}
+.orb-pulse {
+  animation: orb-pulse 2.4s ease-in-out infinite;
+}
+
+/* ─── the golden lotus bloom ─── */
+@keyframes petal-unfold {
+  0% {
+    transform: rotate(var(--rot)) translateY(0) scale(0.1);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--rot)) translateY(-11px) scale(1);
+    opacity: 1;
+  }
+}
+.petal {
+  transform-origin: center bottom;
+  animation: petal-unfold 0.7s cubic-bezier(0.22, 1.4, 0.4, 1) forwards;
+}
+
+@keyframes bloom-flash {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+.bloom-flash {
+  animation: bloom-flash 0.85s ease-out forwards;
+}
+
+@keyframes spark-fly {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0.2);
+    opacity: 0;
+  }
+}
+.spark {
+  animation: spark-fly 0.9s ease-out forwards;
+}
+
+@keyframes lotus-in {
+  0% {
+    transform: scale(0) rotate(-30deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+.lotus-in {
+  animation: lotus-in 0.6s cubic-bezier(0.22, 1.3, 0.4, 1) forwards;
+}
+
+/* soft floating idle for the bloomed lotus */
+@keyframes lotus-breathe {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 4px rgba(244, 201, 93, 0.55));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(244, 201, 93, 0.9));
+  }
+}
+.lotus-breathe {
+  animation: lotus-breathe 3.5s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-up {
+  animation: fade-up 0.35s ease-out both;
+}
+
+/*
+  ══════════════════════════════════════════════════════════════
+   React Flow overrides — make it feel like ink on parchment
+  ══════════════════════════════════════════════════════════════
+*/
+.react-flow__attribution {
+  display: none;
+}
+.react-flow__edge-path {
+  stroke: #7a5c33;
+  stroke-width: 2.5;
+}
+.react-flow__edge.completed .react-flow__edge-path {
+  stroke: var(--color-gold-400);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 3px rgba(212, 175, 71, 0.5));
+}
+.react-flow__edge.locked .react-flow__edge-path {
+  stroke: #9a8a6e;
+  stroke-dasharray: 5 6;
+  opacity: 0.6;
+}
+/* 연결 손잡이 — 평소엔 은은하게, 노드에 커서를 올리면 또렷해진다.
+   우측 점을 끌어 다른 노드에 연결(선행관계 생성)할 수 있다. */
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  background: var(--color-gold-400);
+  border: 1.5px solid var(--color-grim-900);
+  opacity: 0.4;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+.react-flow__node:hover .react-flow__handle {
+  opacity: 1;
+}
+.react-flow__handle:hover {
+  transform: scale(1.35);
+}
+.react-flow__handle-connecting {
+  background: var(--color-lotus);
+}
+/* 연결선에 커서를 올리면 끊을 수 있음을 알린다 */
+.react-flow__edge {
+  cursor: pointer;
+}
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--color-ember);
+  stroke-width: 3.5;
+}

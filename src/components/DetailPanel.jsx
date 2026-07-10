@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Markdown from './Markdown'
 import AiSprout from './AiSprout'
+import ManualNode from './ManualNode'
 
 const STATUS_LABEL = {
   completed: { text: '개화 완료', cls: 'text-gold-600 border-gold-500/60 bg-gold-400/10' },
@@ -153,6 +154,7 @@ export default function DetailPanel({
   onToggle,
   onComplete,
   onDelete,
+  onCollapse,
   existing,
   onCreateNodes,
 }) {
@@ -163,14 +165,15 @@ export default function DetailPanel({
       {/* 탭 */}
       <div className="flex gap-1 border-b border-grim-700/15 bg-grim-900/[0.04] p-1.5">
         {[
-          { id: 'journal', label: '📖  수련서 일지' },
-          { id: 'ai', label: '🌱  현자의 가지심기 (AI)' },
+          { id: 'journal', label: '📖  일지' },
+          { id: 'manual', label: '✒️  새기기' },
+          { id: 'ai', label: '🌱  현자 AI' },
         ].map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
-            className={`flex-1 rounded-lg py-2 font-display text-[13px] font-semibold tracking-wide transition ${
+            className={`flex-1 rounded-lg py-2 font-display text-[12.5px] font-semibold tracking-wide transition ${
               tab === t.id
                 ? 'bg-gradient-to-b from-grim-600 to-grim-700 text-gold-200 shadow'
                 : 'text-ink-soft hover:bg-grim-900/[0.04]'
@@ -179,10 +182,20 @@ export default function DetailPanel({
             {t.label}
           </button>
         ))}
+        <button
+          type="button"
+          onClick={onCollapse}
+          title="수련서 접기"
+          className="flex w-9 shrink-0 items-center justify-center rounded-lg text-ink-soft transition hover:bg-grim-900/[0.06] hover:text-grim-700"
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M13 6l6 6-6 6M5 6l6 6-6 6" />
+          </svg>
+        </button>
       </div>
 
       <div className="min-h-0 flex-1">
-        {tab === 'journal' ? (
+        {tab === 'journal' && (
           <Journal
             node={node}
             status={status}
@@ -190,9 +203,9 @@ export default function DetailPanel({
             onComplete={onComplete}
             onDelete={onDelete}
           />
-        ) : (
-          <AiSprout existing={existing} onCreateNodes={onCreateNodes} />
         )}
+        {tab === 'manual' && <ManualNode existing={existing} onCreateNodes={onCreateNodes} />}
+        {tab === 'ai' && <AiSprout existing={existing} onCreateNodes={onCreateNodes} />}
       </div>
     </aside>
   )

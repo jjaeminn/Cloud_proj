@@ -45,8 +45,9 @@ src/
 │  ├─ SkillTree.jsx       React Flow 캔버스(노드/엣지 변환)
 │  ├─ SkillNode.jsx       커스텀 노드(로터스 / 구슬 / 봉인)
 │  ├─ Lotus.jsx           황금 로터스 개화 SVG + 섬광·불티
-│  ├─ DetailPanel.jsx     우측 수련서(탭 · 요약 · 퀘스트 · 개화 버튼)
+│  ├─ DetailPanel.jsx     우측 수련서(3탭: 일지 · 직접 새기기 · 현자 AI)
 │  ├─ AiSprout.jsx        "현자의 가지심기" — 노트 → /api/summarize → 트리에 심기
+│  ├─ ManualNode.jsx      "직접 새기기" — 폼으로 노드 손수 생성(선행 선택 포함)
 │  ├─ Markdown.jsx        요약본용 초경량 마크다운 렌더러
 │  └─ Legend.jsx          지도 하단 범례
 server/index.js           Express + LLM 프록시(provider-무관, 기본 Gemini)
@@ -61,6 +62,15 @@ server/index.js           Express + LLM 프록시(provider-무관, 기본 Gemini
 - 그 외 → **locked** (봉인, 점선 엣지)
 
 `prerequisites`가 곧 React Flow 엣지, `position`이 노드 좌표.
+
+## 노드를 만드는 3가지 방법
+
+1. **현자 (AI)** — 노트를 붙여 넣으면 여러 단계로 자동 분해·연결 (아래 파이프라인)
+2. **직접 새기기** — 제목·요약·체크리스트·선행 수련을 폼으로 입력해 손수 생성
+3. **드래그 연결** — 지도에서 노드 우측 점을 끌어 다른 노드에 이으면 선행관계 생성.
+   연결선을 클릭하면 끊긴다. 기본 커리큘럼 노드까지 자유롭게 잇고 끊을 수 있다.
+   - 추가/해제한 연결은 `grimoire.links` / `grimoire.unlinks` 로 저장되고,
+     `useSkillTree` 가 `(기본 선행 ∪ 직접 연결) − 끊은 연결` 로 병합한다. 순환은 자동 거부.
 
 ## AI 파이프라인 (텍스트 → 스킬트리)
 

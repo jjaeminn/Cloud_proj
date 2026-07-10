@@ -1,9 +1,10 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import {
   ReactFlow,
   Background,
   BackgroundVariant,
   Controls,
+  useReactFlow,
 } from '@xyflow/react'
 import SkillNode from './SkillNode'
 
@@ -19,11 +20,24 @@ export default function SkillTree({
   statusById,
   selectedId,
   bloomedId,
+  fitKey,
   onSelect,
   onDelete,
   onConnect,
   onEdgeClick,
 }) {
+  /* 패널을 접거나 펼쳐 지도 크기가 달라지면 남는 공간에 맞춰 부드럽게 재정렬 */
+  const rf = useReactFlow()
+  const firstFit = useRef(true)
+  useEffect(() => {
+    if (firstFit.current) {
+      firstFit.current = false
+      return
+    }
+    const t = setTimeout(() => rf.fitView({ padding: 0.25, duration: 450 }), 120)
+    return () => clearTimeout(t)
+  }, [fitKey, rf])
+
   const rfNodes = useMemo(
     () =>
       data.map((n) => ({

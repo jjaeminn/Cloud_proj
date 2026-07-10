@@ -92,7 +92,7 @@ export default function ManualNode({ existing = [], onCreateNodes }) {
         value={summary}
         onChange={(e) => setSummary(e.target.value)}
         placeholder={'# 제목\n\n- 핵심 개념\n- **굵게** · `코드`'}
-        className={`${field} h-24 resize-none font-serif leading-relaxed`}
+        className={`${field} h-52 shrink-0 resize-y font-serif text-[13.5px] leading-relaxed`}
       />
 
       {/* 체크리스트 */}

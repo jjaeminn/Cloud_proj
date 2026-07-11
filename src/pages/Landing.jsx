@@ -80,7 +80,7 @@ export default function Landing() {
       <div className="mx-auto max-w-5xl px-6 py-14">
         {/* ── Hero ─────────────────────────────── */}
         <header className="flex flex-col items-center text-center">
-          <div className="mb-5 lotus-breathe">
+          <div className="mb-5">
             <Lotus size={72} />
           </div>
           <span className="rounded-full border border-gold-500/50 px-3 py-1 font-display text-[11px] font-semibold tracking-[0.25em] text-gold-400">

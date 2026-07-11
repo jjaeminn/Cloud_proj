@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 /*
   황금 로터스 — 완수한 수련 위에 피어나는 개화 연출.
   petals 는 CSS @keyframes(petal-unfold)로 하나씩 펼쳐지고,
@@ -10,13 +12,11 @@ const SPARKS = Array.from({ length: 10 }, (_, i) => {
   return { dx: Math.cos(a) * 42, dy: Math.sin(a) * 42, delay: (i % 5) * 0.04 }
 })
 
-export default function Lotus({ size = 46, burst = false }) {
+function Lotus({ size = 46, burst = false }) {
   return (
-    <div
-      className="relative lotus-breathe"
-      style={{ width: size, height: size }}
-      aria-hidden="true"
-    >
+    <div className="relative" style={{ width: size, height: size }} aria-hidden="true">
+      {/* 숨쉬는 발광 — filter:drop-shadow 애니 대신 opacity/transform 레이어 (GPU 합성) */}
+      <span className="lotus-glow absolute inset-0 rounded-full bg-lotus/50 blur-lg" />
       {burst && (
         <>
           <span
@@ -41,7 +41,7 @@ export default function Lotus({ size = 46, burst = false }) {
         </>
       )}
 
-      <svg viewBox="0 0 100 100" className="h-full w-full lotus-in">
+      <svg viewBox="0 0 100 100" className="relative h-full w-full lotus-in">
         <defs>
           <radialGradient id="lotus-petal" cx="50%" cy="80%" r="80%">
             <stop offset="0%" stopColor="#fff4d0" />
@@ -72,3 +72,5 @@ export default function Lotus({ size = 46, burst = false }) {
     </div>
   )
 }
+
+export default memo(Lotus)

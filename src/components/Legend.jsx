@@ -7,7 +7,7 @@ const ITEMS = [
 
 export default function Legend() {
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-between gap-4 border-t border-gold-600/25 bg-grim-900/75 px-5 py-2 text-[11px] backdrop-blur">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-between gap-4 border-t border-gold-600/25 bg-grim-900/95 px-5 py-2 text-[11px]">
       <div className="flex items-center gap-5">
         {ITEMS.map((it) => (
           <div key={it.label} className="flex items-center gap-1.5 text-parchment/70">

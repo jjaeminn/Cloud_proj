@@ -6,6 +6,7 @@ const CUSTOM_KEY = 'grimoire.custom.v1'
 const DELETED_KEY = 'grimoire.deleted.v1'
 const LINKS_KEY = 'grimoire.links.v1' // 직접 그은 연결(추가 선행)
 const UNLINKS_KEY = 'grimoire.unlinks.v1' // 끊은 연결(기본 선행 포함)
+const POSITIONS_KEY = 'grimoire.positions.v1' // 드래그로 옮긴 노드 좌표
 
 /* localStorage 저장소들 */
 function load(key) {
@@ -45,6 +46,7 @@ export function useSkillTree() {
   const [deleted, setDeleted] = useState(() => load(DELETED_KEY) || [])
   const [links, setLinks] = useState(() => load(LINKS_KEY) || [])
   const [unlinks, setUnlinks] = useState(() => load(UNLINKS_KEY) || [])
+  const [positions, setPositions] = useState(() => load(POSITIONS_KEY) || {})
 
   /*
     기본 노드 + AI/직접 노드 − 삭제된 노드.
@@ -64,10 +66,11 @@ export function useSkillTree() {
       return {
         ...node,
         prerequisites: merged,
+        position: positions[node.id] || node.position, // 드래그로 옮긴 좌표가 우선
         checklist: node.checklist.map((c) => ({ ...c, done: progress[c.id] ?? c.done })),
       }
     })
-  }, [progress, custom, deleted, links, unlinks])
+  }, [progress, custom, deleted, links, unlinks, positions])
 
   /* 선행 노드가 삭제됐으면 무시 (남은 선행만 따진다) */
   const statusById = useMemo(() => {
@@ -269,6 +272,17 @@ export function useSkillTree() {
     })
   }, [])
 
+  /* 드래그 종료 시 옮긴 좌표를 오버레이에 반영하고 디스크에 봉인한다 (1회) */
+  const savePositions = useCallback((updates) => {
+    if (!updates?.length) return
+    setPositions((prev) => {
+      const next = { ...prev }
+      for (const u of updates) next[u.id] = u.position
+      save(POSITIONS_KEY, next)
+      return next
+    })
+  }, [])
+
   const stats = useMemo(() => {
     const total = nodes.length
     const done = nodes.filter((n) => statusById[n.id] === 'completed').length
@@ -284,6 +298,7 @@ export function useSkillTree() {
     deleteNode,
     linkNodes,
     unlinkNodes,
+    savePositions,
     stats,
   }
 }

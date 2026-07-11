@@ -7,9 +7,21 @@ import Legend from '../components/Legend'
 import { useSkillTree } from '../hooks/useSkillTree'
 
 export default function GrimoireMap() {
-  const { nodes, statusById, toggleCheck, completeNode, addNodes, deleteNode, linkNodes, unlinkNodes, stats } =
-    useSkillTree()
-  const [selectedId, setSelectedId] = useState('firewall')
+  const {
+    nodes,
+    statusById,
+    toggleCheck,
+    completeNode,
+    addNodes,
+    deleteNode,
+    linkNodes,
+    unlinkNodes,
+    savePositions,
+    stats,
+  } = useSkillTree()
+
+  /* 다중 선택 — 박스 드래그로 여러 노드를 한 번에 고를 수 있다 */
+  const [selectedIds, setSelectedIds] = useState(['firewall'])
   const [bloomedId, setBloomedId] = useState(null)
   const [panelOpen, setPanelOpen] = useState(true)
 
@@ -34,19 +46,36 @@ export default function GrimoireMap() {
     prevStatus.current = statusById
   }, [statusById, nodes])
 
-  const selected = nodes.find((n) => n.id === selectedId) || null
+  /* 수련서 패널엔 선택된 것 중 첫 노드를 펼친다 */
+  const selected = nodes.find((n) => n.id === selectedIds[0]) || null
 
-  /* 노드를 고르면 선택 + 수련서 패널을 자동으로 펼친다 (빈 곳 클릭은 선택만 해제) */
-  const handleSelect = useCallback((id) => {
-    setSelectedId(id)
-    if (id) setPanelOpen(true)
+  /*
+    React Flow 가 알려주는 선택 변경을 반영한다.
+    노드를 새로 고르면(=selected:true 가 하나라도 있으면) 수련서를 자동으로 펼친다.
+  */
+  const handleSelectChanges = useCallback((changes) => {
+    setSelectedIds((prev) => {
+      const s = new Set(prev)
+      for (const c of changes) {
+        if (c.selected) s.add(c.id)
+        else s.delete(c.id)
+      }
+      return [...s]
+    })
+    if (changes.some((c) => c.selected)) setPanelOpen(true)
   }, [])
+
+  /* 빈 곳을 클릭하면 선택 해제 (패널은 그대로 둔다) */
+  const handlePaneClick = useCallback(() => setSelectedIds([]), [])
+
+  /* 드래그가 끝나면 옮긴 좌표를 저장 */
+  const handleNodesPersist = useCallback((updates) => savePositions(updates), [savePositions])
 
   /* AI가 심은 노드 사슬을 트리에 추가하고, 뿌리 노드를 선택 상태로 옮긴다 */
   const handleCreateNodes = useCallback(
     (drafts) => {
       const ids = addNodes(drafts)
-      if (ids.length) setSelectedId(ids[0])
+      if (ids.length) setSelectedIds([ids[0]])
       return ids
     },
     [addNodes],
@@ -63,7 +92,7 @@ export default function GrimoireMap() {
       const label = node ? `「${node.title}」` : '이 수련'
       if (!window.confirm(`${label} 룬을 지도에서 지울까요?`)) return
       deleteNode(id)
-      setSelectedId((cur) => (cur === id ? null : cur))
+      setSelectedIds((cur) => cur.filter((s) => s !== id))
     },
     [deleteNode],
   )
@@ -96,19 +125,23 @@ export default function GrimoireMap() {
       >
         {/* 좌 · 지식의 지도 */}
         <section className="relative min-h-0 overflow-hidden rounded-2xl border border-gold-600/35 parchment">
-          <div className="pointer-events-none absolute left-1/2 top-3 z-10 -translate-x-1/2 rounded-full border border-gold-600/40 bg-grim-900/80 px-4 py-1.5 text-[11px] text-parchment/75 backdrop-blur">
-            🜁 룬을 눌러 기록 확인 · 노드 우측 점을 끌어 연결 · 선을 클릭해 끊기
+          {/* backdrop-blur 는 팬/드래그 중 매 프레임 재블러 → 렉. 불투명 배경으로 대체 */}
+          <div className="pointer-events-none absolute left-1/2 top-3 z-10 -translate-x-1/2 rounded-full border border-gold-600/40 bg-grim-900/95 px-4 py-1.5 text-[11px] text-parchment/75">
+            🜁 좌클릭 드래그로 노드 이동·범위 선택 · 우클릭 드래그로 지도 이동 · 선 클릭해 끊기
           </div>
 
-          <div className="absolute inset-0">
+          {/* 우클릭을 팬 조작으로 쓰므로 브라우저 컨텍스트 메뉴는 막는다 */}
+          <div className="absolute inset-0" onContextMenu={(e) => e.preventDefault()}>
             <ReactFlowProvider>
               <SkillTree
                 nodes={nodes}
                 statusById={statusById}
-                selectedId={selectedId}
+                selectedIds={selectedIds}
                 bloomedId={bloomedId}
                 fitKey={panelOpen}
-                onSelect={handleSelect}
+                onSelectChanges={handleSelectChanges}
+                onPaneClick={handlePaneClick}
+                onNodesPersist={handleNodesPersist}
                 onDelete={handleDelete}
                 onConnect={handleConnect}
                 onEdgeClick={handleEdgeClick}
@@ -121,7 +154,7 @@ export default function GrimoireMap() {
             <button
               type="button"
               onClick={() => setPanelOpen(true)}
-              className="fade-up absolute right-3 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-1.5 rounded-xl border border-gold-500/50 bg-grim-800/90 px-2 py-3 font-display text-[11px] tracking-widest text-gold-300 shadow-lg backdrop-blur transition hover:bg-grim-700"
+              className="fade-up absolute right-3 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-1.5 rounded-xl border border-gold-500/50 bg-grim-800 px-2 py-3 font-display text-[11px] tracking-widest text-gold-300 shadow-lg transition hover:bg-grim-700"
               title="수련서 펼치기"
             >
               <span className="text-base">📖</span>
@@ -138,6 +171,7 @@ export default function GrimoireMap() {
             <DetailPanel
               node={selected}
               status={selected ? statusById[selected.id] : null}
+              selectedCount={selectedIds.length}
               onToggle={(id) => toggleCheck(id)}
               onComplete={completeNode}
               onDelete={handleDelete}

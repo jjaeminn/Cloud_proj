@@ -151,6 +151,7 @@ function Journal({ node, status, onToggle, onComplete, onDelete }) {
 export default function DetailPanel({
   node,
   status,
+  selectedCount = 0,
   onToggle,
   onComplete,
   onDelete,
@@ -193,6 +194,13 @@ export default function DetailPanel({
           </svg>
         </button>
       </div>
+
+      {/* 박스 드래그로 여러 룬을 한 번에 골랐을 때 */}
+      {selectedCount > 1 && (
+        <div className="border-b border-gold-600/25 bg-gold-400/[0.08] px-4 py-1.5 text-center font-display text-[11px] tracking-widest text-gold-700">
+          ✦ {selectedCount}개의 룬이 선택됨 — 함께 끌어 옮길 수 있습니다
+        </div>
+      )}
 
       <div className="min-h-0 flex-1">
         {tab === 'journal' && (

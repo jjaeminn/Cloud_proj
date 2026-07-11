@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Handle, Position } from '@xyflow/react'
 import Lotus from './Lotus'
 
@@ -7,12 +8,16 @@ import Lotus from './Lotus'
     completed → 만개한 황금 로터스
     available → 맥동하는 마력의 구슬
     locked    → 고대의 봉인 (자물쇠)
+
+  memo 로 감싼다 — SkillTree 가 data 객체의 참조 동일성을 지켜주므로,
+  옮기거나 고른 노드 하나만 다시 그려진다.
 */
-export default function SkillNode({ data }) {
+function SkillNode({ data }) {
   const { title, grade, tagline, status, selected, justBloomed, onDelete } = data
 
+  /* transition-all 은 box-shadow·outline 까지 감시해 비싸다 → 필요한 것만 */
   const base =
-    'group relative w-[210px] rounded-xl px-4 py-3 transition-all duration-300 cursor-pointer select-none border'
+    'group relative w-[210px] rounded-xl px-4 py-3 transition-[border-color,opacity] duration-300 cursor-grab active:cursor-grabbing select-none border'
 
   const skin = {
     completed:
@@ -53,8 +58,15 @@ export default function SkillNode({ data }) {
           {status === 'completed' && <Lotus size={46} burst={justBloomed} />}
 
           {status === 'available' && (
-            <span className="orb-pulse flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-lotus to-ember">
-              <span className="h-3 w-3 rounded-full bg-gold-100" />
+            /* 발광은 별도 레이어의 opacity/transform 으로만 — box-shadow 애니는 매 프레임 repaint */
+            <span className="relative flex h-8 w-8 items-center justify-center">
+              <span
+                aria-hidden
+                className="orb-glow absolute inset-0 rounded-full bg-lotus/70 blur-md"
+              />
+              <span className="orb-pulse relative flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-lotus to-ember">
+                <span className="h-3 w-3 rounded-full bg-gold-100" />
+              </span>
             </span>
           )}
 
@@ -91,3 +103,5 @@ export default function SkillNode({ data }) {
     </div>
   )
 }
+
+export default memo(SkillNode)

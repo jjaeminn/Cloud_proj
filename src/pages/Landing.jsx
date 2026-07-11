@@ -13,6 +13,21 @@ const FEATURES = [
     desc: '학습 노트를 붙여 넣으면 LLM 이 배우는 순서대로 여러 단계로 쪼개어 1→2→3 사슬로 자동 구조화한다.',
   },
   {
+    icon: '✒️',
+    title: '직접 새기기',
+    desc: 'AI 없이도 폼으로 제목·요약·체크리스트·선행을 입력해 나만의 수련 노드를 손수 만든다.',
+  },
+  {
+    icon: '🔗',
+    title: '드래그로 연결',
+    desc: '노드 우측 점을 끌어 다른 노드에 이으면 선행관계가 생긴다. 연결선을 클릭하면 끊긴다.',
+  },
+  {
+    icon: '✋',
+    title: '자유 배치',
+    desc: '노드를 끌어 원하는 곳에 두고, 좌클릭 박스로 여럿을 골라 함께 옮긴다. 위치는 그대로 저장된다.',
+  },
+  {
     icon: '🪷',
     title: '황금 로터스 개화',
     desc: '노드의 퀘스트를 모두 완수하면 그 자리에서 로터스가 피어나는 완료 연출이 터진다.',
@@ -20,12 +35,12 @@ const FEATURES = [
   {
     icon: '✅',
     title: '퀘스트 체크리스트',
-    desc: '노드마다 구체적 실습 과제. 진행 상태는 localStorage 에 영구 저장되어 새로고침해도 남는다.',
+    desc: '노드마다 구체적 실습 과제. 진행·배치·연결이 localStorage 에 영구 저장되어 새로고침해도 남는다.',
   },
   {
     icon: '📜',
     title: '전승 요약본',
-    desc: '각 노드를 누르면 마크다운으로 정리된 공부 글이 수련서 패널에 펼쳐진다.',
+    desc: '각 노드를 누르면 마크다운으로 정리된 공부 글이 수련서 패널에 펼쳐진다. 패널은 접었다 펼 수 있다.',
   },
   {
     icon: '✕',
@@ -37,10 +52,10 @@ const FEATURES = [
 const STACK = [
   { name: 'Vite + React', role: '프론트 뼈대' },
   { name: 'Tailwind CSS v4', role: '스타일' },
-  { name: 'React Flow', role: '스킬트리 · 줌/팬/엣지' },
+  { name: 'React Flow', role: '스킬트리 · 드래그 · 연결' },
   { name: 'React Router', role: '페이지 라우팅' },
   { name: 'CSS @keyframes', role: '개화 애니메이션' },
-  { name: 'localStorage', role: '진행도 저장' },
+  { name: 'localStorage', role: '진행·배치·연결 저장' },
   { name: 'Express + Gemini', role: 'AI 요약 프록시' },
 ]
 
@@ -125,15 +140,37 @@ export default function Landing() {
               </div>
             ))}
           </div>
+
+          {/* 노드를 심는 세 가지 길 + 마우스 조작 안내 */}
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="rounded-2xl border border-gold-500/40 bg-grim-900/50 p-5">
+              <div className="font-display text-[13px] tracking-widest text-gold-400">✦ 노드를 심는 세 가지 길</div>
+              <ul className="mt-2.5 space-y-1.5 text-[13px] text-parchment/70">
+                <li>🌱 <b className="text-gold-200">현자(AI)</b> — 노트를 던지면 단계별 사슬로 자동 분해</li>
+                <li>✒️ <b className="text-gold-200">직접 새기기</b> — 폼으로 손수 노드 생성</li>
+                <li>🔗 <b className="text-gold-200">드래그 연결</b> — 점을 끌어 선행관계 잇기</li>
+              </ul>
+            </div>
+            <div className="rounded-2xl border border-gold-500/40 bg-grim-900/50 p-5">
+              <div className="font-display text-[13px] tracking-widest text-gold-400">✦ 마우스 조작</div>
+              <ul className="mt-2.5 space-y-1.5 text-[13px] text-parchment/70">
+                <li>🖱️ <b className="text-gold-200">좌클릭 드래그</b> — 노드 이동 · 빈 곳은 범위 선택</li>
+                <li>🖱️ <b className="text-gold-200">우클릭 드래그</b> — 지도 화면 이동(팬)</li>
+                <li>🖱️ <b className="text-gold-200">노드/선 클릭</b> — 기록 열기 · 연결선 끊기</li>
+              </ul>
+            </div>
+          </div>
         </section>
 
         <div className="rune-divider my-16" />
 
         {/* ── How it works ─────────────────────── */}
         <section id="how" className="scroll-mt-8">
-          <h2 className="text-center font-display text-2xl font-bold text-gold-300">✦ 작동 원리</h2>
+          <h2 className="text-center font-display text-2xl font-bold text-gold-300">
+            ✦ 작동 원리 — 현자(AI)의 길
+          </h2>
           <p className="mt-2 text-center text-[13px] text-parchment/55">
-            텍스트 한 조각이 트리로 자라기까지, 세 번의 술식
+            노트 한 조각이 트리로 자라기까지, 세 번의 술식 (직접·연결로도 만들 수 있다)
           </p>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {STEPS.map((s, i) => (
@@ -176,6 +213,25 @@ export default function Landing() {
                 <div className="text-[11px] text-parchment/50">{t.role}</div>
               </div>
             ))}
+          </div>
+
+          {/* 이중화 · 백업 서버 결계 */}
+          <div className="mx-auto mt-6 flex max-w-2xl flex-col items-center gap-1.5 rounded-xl border border-gold-500/40 bg-grim-900/50 px-5 py-4 text-center">
+            <div className="font-display text-[13px] tracking-widest text-gold-400">
+              🜂 이중화 결계 · 백업 서버
+            </div>
+            <p className="text-[12px] leading-relaxed text-parchment/60">
+              본진이 쓰러져도 수련지도는 멈추지 않는다. 예비 신전이 즉시 이어받도록 백업 서버를 함께 세웠다.
+            </p>
+            <a
+              href="https://valuehost.space/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-flex items-center gap-1.5 rounded-lg border border-gold-500/50 bg-grim-800 px-3 py-1.5 font-mono text-[12px] text-gold-300 transition hover:bg-grim-700 hover:text-gold-200"
+            >
+              🔗 valuehost.space
+              <span aria-hidden>↗</span>
+            </a>
           </div>
         </section>
 
